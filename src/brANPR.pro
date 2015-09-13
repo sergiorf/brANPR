@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2015-09-13T00:16:22
+# Project created by QtCreator 2015-09-13T14:56:43
 #
 #-------------------------------------------------
 
@@ -26,5 +26,4 @@ LIBS += -LC:\dev\opencv\build\x64\vc12\lib \
 -lopencv_highgui2411d \
 -lopencv_imgproc2411d \
 -lopencv_video2411d \
-
 
