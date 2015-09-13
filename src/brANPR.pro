@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    anprengine.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    anprengine.h
 
 FORMS    += mainwindow.ui
 

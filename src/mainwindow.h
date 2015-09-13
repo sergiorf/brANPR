@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <memory>
+
+class ANPREngine;
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +32,7 @@ private:
     Ui::MainWindow *ui;
     QVector<QString> _images;
     int _currptr;
+    std::unique_ptr<ANPREngine> _engine;
 };
 
 #endif // MAINWINDOW_H

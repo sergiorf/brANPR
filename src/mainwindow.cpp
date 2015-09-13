@@ -1,15 +1,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "anprengine.h"
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    _engine(new ANPREngine())
 {
     ui->setupUi(this);
-       _currptr = 0;
+    _currptr = 0;
 }
 
 MainWindow::~MainWindow()
@@ -39,7 +41,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::runEngine(int index)
 {
-    if (_images.count()>index)
+    if (_images.count() > index)
     {
         QImage image(_images[index]);
         ui->label_1->setPixmap(QPixmap::fromImage(image).scaled(ui->label_1->size()));
