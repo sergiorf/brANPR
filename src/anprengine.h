@@ -9,7 +9,7 @@ class ANPREngine
 public:
     ANPREngine();
     void run(const std::string& picPath);
-    QImage original();
+   //    QImage original();
 };
 
 #endif // ANPRENGINE
