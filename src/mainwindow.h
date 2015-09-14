@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QVector>
+
+#include <vector>
+#include <string>
 #include <memory>
 
 class ANPREngine;
@@ -30,7 +32,7 @@ protected:
 private:
     void runEngine(int index);
     Ui::MainWindow *ui;
-    QVector<QString> _images;
+    std::vector<std::string> _images;
     int _currptr;
     std::unique_ptr<ANPREngine> _engine;
 };

@@ -21,7 +21,7 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-INCLUDEPATH += C:\dev\opencv\sources\include
+INCLUDEPATH += C:\dev\opencv\build\include
 
 LIBS += -LC:\dev\opencv\build\x64\vc12\lib \
 -lopencv_core2411d \

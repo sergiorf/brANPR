@@ -28,7 +28,7 @@ void MainWindow::on_actionOpen_Folder_triggered()
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     QDirIterator it(dir, QStringList() << "*.jpg", QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
-        _images.append(it.next());
+        _images.push_back(it.next().toUtf8().constData());
     }
     runEngine(_currptr);
 }
@@ -41,25 +41,28 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::runEngine(int index)
 {
-    if (_images.count() > index)
+    if (_images.size() > index)
     {
+        _engine->run(_images[index]);
+        /*
         QImage image(_images[index]);
         ui->label_1->setPixmap(QPixmap::fromImage(image).scaled(ui->label_1->size()));
         ui->label_2->setPixmap(QPixmap::fromImage(image).scaled(ui->label_2->size()));
         ui->label_3->setPixmap(QPixmap::fromImage(image).scaled(ui->label_3->size()));
         ui->label_4->setPixmap(QPixmap::fromImage(image).scaled(ui->label_4->size()));
         ui->pictPath->setText(_images[index]);
+        */
     }
 }
 
 void MainWindow::on_nextBtn_clicked()
 {
-    _currptr = (_currptr + 1) % _images.count();
+    _currptr = (_currptr + 1) % _images.size();
     runEngine(_currptr);
 }
 
 void MainWindow::on_prevBtn_clicked()
 {
-    _currptr = (_currptr - 1) % _images.count();
+    _currptr = (_currptr - 1) % _images.size();
     runEngine(_currptr);
 }
