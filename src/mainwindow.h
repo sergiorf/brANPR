@@ -4,37 +4,36 @@
 #include <QMainWindow>
 
 #include <vector>
-#include <string>
 #include <memory>
 
 class ANPREngine;
 
 namespace Ui {
-class MainWindow;
+  class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+  explicit MainWindow(QWidget *parent = nullptr);
+  ~MainWindow();
 
-private slots:
-    void on_actionOpen_Folder_triggered();
-    void on_nextBtn_clicked();
-    void on_prevBtn_clicked();
+  private slots:
+  void on_actionOpen_Folder_triggered();
+  void on_nextBtn_clicked();
+  void on_prevBtn_clicked();
 
 protected:
-    void resizeEvent(QResizeEvent* event);
+  void resizeEvent(QResizeEvent* event) override;
 
 private:
-    void runEngine(int index);
-    Ui::MainWindow *ui;
-    std::vector<std::string> _images;
-    int _currptr;
-    std::unique_ptr<ANPREngine> _engine;
+  void runEngine(int index) const;
+  Ui::MainWindow *ui;
+  std::vector<QString> _images;
+  int _currptr;
+  std::unique_ptr<ANPREngine> _engine;
 };
 
 #endif // MAINWINDOW_H
