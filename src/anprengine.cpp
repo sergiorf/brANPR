@@ -17,7 +17,15 @@ void ANPREngine::run(const string& picPath)
   Mat img_gray;
   cvtColor(input, img_gray, CV_BGR2GRAY);
   blur(img_gray, img_gray, Size(5, 5));
-  _Processed1 = mat2QImage(img_gray);
+  //Detect vertical edges using Sobel filter. Car plates have high density of vertical lines
+  Mat img_sobel;
+  Sobel(img_gray, img_sobel, CV_8U, 1, 0, 3, 1, 0);
+  Mat img_threshold;
+  threshold(img_sobel, img_threshold, 0, 255, CV_THRESH_OTSU + CV_THRESH_BINARY);
+  //Connect all regions that have high density of edges
+  Mat element = getStructuringElement(MORPH_RECT, Size(17, 3));
+  morphologyEx(img_threshold, img_threshold, CV_MOP_CLOSE, element);
+  _Processed1 = mat2QImage(img_threshold);
 }
 
 QImage ANPREngine::original() const
