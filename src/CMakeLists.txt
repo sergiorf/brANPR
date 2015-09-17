@@ -10,8 +10,8 @@ find_package(Qt5Widgets)
 
 set(UI_FILES mainwindow.ui)
 set(QT_WRAP mainwindow.h)
-set(HEADERS mainwindow.h anprengine.h)
-set(CXX_FILES main.cpp mainwindow.cpp anprengine.cpp)
+set(HEADERS mainwindow.h anprengine.h utils.h)
+set(CXX_FILES main.cpp mainwindow.cpp anprengine.cpp utils.cpp)
 
 QT5_WRAP_UI(UISrcs ${UI_FILES})
 QT5_WRAP_CPP(MOCSrcs ${QT_WRAP})
