@@ -3,11 +3,16 @@
 #include <memory>
 #include <iostream>
 #include "utils.h"
+#include <time.h>
+#include <random>
 
 using namespace std;
 using namespace cv;
 
 #define YELLOW CV_RGB(255, 255, 0)
+#define GREEN  CV_RGB(0, 255, 0)
+#define BLUE   CV_RGB(0, 0, 255)
+#define RED    CV_RGB(255, 0, 0)
 
 namespace brANPR
 {
@@ -20,18 +25,75 @@ namespace brANPR
     auto input = imread(picPath, CV_LOAD_IMAGE_COLOR);
     Mat processed;
     preprocess(input, processed);
+    vector<vector<Point>> contours;
     vector<RotatedRect> rects;
-    findContours(processed, rects);
+    findContours(processed, contours, rects);
+
+
+    // Draw blue contours on a white image
+    cv::Mat result;
+    input.copyTo(result);
+    cv::drawContours(result, contours,
+      -1, // draw all contours
+      BLUE, 1); // with a thickness of 1
+
+    for (int i = 0; i < rects.size(); i++){
+      //For better rect cropping for each possible box
+      //Make floodfill algorithm because the plate has white background
+      //And then we can retrieve more clearly the contour box
+      circle(result, rects[i].center, 3, GREEN, -1);
+      //get the min size between width and height
+      auto minSize = min(rects[i].size.width, rects[i].size.height) * 0.5;
+      //initialize rand and get 5 points around center for floodfill algorithm
+      srand(time(nullptr));
+      //Initialize floodfill parameters and variables
+      Mat mask;
+      mask.create(input.rows + 2, input.cols + 2, CV_8UC1);
+      mask = Scalar::all(0);
+      const Scalar loDiff{30, 30, 30}, upDiff{30, 30, 30};
+     // const Scalar loDiff{ 20, 20, 20 }, upDiff{ 20, 20, 20 };
+      const auto connectivity = 4;
+      const auto newMaskVal = 255;
+      const auto numSeeds = 10;
+      Rect ccomp;
+      int flags = connectivity + (newMaskVal << 8) + CV_FLOODFILL_FIXED_RANGE + CV_FLOODFILL_MASK_ONLY;
+      for (int j = 0; j < numSeeds; j++){
+        Point seed;
+        seed.x = rects[i].center.x + rand() % static_cast<int>(minSize) - (minSize / 2);
+        seed.y = rects[i].center.y + rand() % static_cast<int>(minSize) - (minSize / 2);
+        circle(result, seed, 1, YELLOW, -1);
+        auto area = floodFill(input, mask, seed, BLUE, &ccomp, loDiff, upDiff, flags);
+      }
+      imshow("MASK", mask);
+      cvWaitKey(0);
+
+      //Check new floodfill mask match for a correct patch.
+      //Get all points detected for get Minimal rotated Rect
+      vector<Point> pointsInterest;
+      Mat_<uchar>::iterator itMask = mask.begin<uchar>();
+      Mat_<uchar>::iterator end = mask.end<uchar>();
+      for (; itMask != end; ++itMask)
+      if (*itMask == 255)
+        pointsInterest.push_back(itMask.pos());
+      RotatedRect minRect = minAreaRect(pointsInterest);
+      if (verifySizes(minRect))
+      {
+        drawRotatedRect(input, minRect, RED);
+      }
+    }
+    imshow("result",result);
+
+    
     drawRotatedRect(processed, rects, YELLOW);
     drawRotatedRect(input, rects, YELLOW);
     _Original = mat2QImage(input);
     _Processed1 = mat2QImage(processed);
   }
 
-  void ANPREngine::findContours(const InputOutputArray& src, vector<RotatedRect>& rects) const
+  void ANPREngine::findContours(const InputOutputArray& src, vector<vector<Point>>&  contours, 
+    vector<RotatedRect>& boundingRects) const
   {
     //Find contours of possibles plates
-    vector<vector<Point>> contours;
     cv::findContours(src,
       contours, // a vector of contours
       CV_RETR_EXTERNAL, // retrieve the external contours
@@ -50,7 +112,7 @@ namespace brANPR
       else
       {
         ++itc;
-        rects.push_back(mr);
+        boundingRects.push_back(mr);
       }
     }
   }

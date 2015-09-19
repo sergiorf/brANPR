@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "anprengine.h"
+#include "DetectRegions.h"
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QDebug>
@@ -45,12 +46,18 @@ namespace brANPR
   {
     if (_images.size() > index)
     {
+      DetectRegions detectRegions;
+      detectRegions.setFilename(_images[index].toUtf8().constData());
+      detectRegions.showSteps = true;
+      detectRegions.run();
+      /*
       _engine->run(_images[index].toUtf8().constData());
       ui->label_1->setPixmap(QPixmap::fromImage(_engine->original()).scaled(ui->label_1->size()));
       ui->label_2->setPixmap(QPixmap::fromImage(_engine->sobel()).scaled(ui->label_2->size()));
       ui->label_3->setPixmap(QPixmap::fromImage(_engine->processed1()).scaled(ui->label_3->size()));
       ui->label_4->setPixmap(QPixmap::fromImage(_engine->original()).scaled(ui->label_4->size()));
       ui->pictPath->setText(_images[index]);
+      */
     }
   }
 
