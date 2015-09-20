@@ -1,8 +1,9 @@
-#include "DetectRegions.h"
+#include "detectregions.h"
 #include <random>
 #include <time.h>
 #include "anprengine.h"
 #include "utils.h"
+#include <QDir>
 
 #define YELLOW CV_RGB(255, 255, 0)
 #define GREEN  CV_RGB(0, 255, 0)
@@ -12,10 +13,12 @@
 
 void DetectRegions::setFilename(string s) {
         filename=s;
+        filename_notpath = brANPR::getFilename(s);
 }
 
 DetectRegions::DetectRegions(){
     showSteps=false;
+    saveRegions = false;
 }
 
 bool DetectRegions::verifySizes(RotatedRect mr){
@@ -142,10 +145,7 @@ vector<Plate> DetectRegions::segment(Mat input){
             Point seed;
             seed.x=rects[i].center.x+rand()%(int)minSize-(minSize/2);
             seed.y=rects[i].center.y+rand()%(int)minSize-(minSize/2);
-            circle(result, seed, 1, YELLOW, -1);
-
-            Rect area = rects[i].boundingRect();
-            
+            circle(result, seed, 1, YELLOW, -1);            
             
           //  cv::rectangle(input, area, cvScalar(1), CV_FILLED);
           //  floodFill(Mat(input, area), Mat(mask,  area), seed, BLUE, &ccomp, Scalar(loDiff, loDiff, loDiff), Scalar(upDiff, upDiff, upDiff), flags);
@@ -153,9 +153,10 @@ vector<Plate> DetectRegions::segment(Mat input){
           Mat tmp;
           tmp.create(input.rows + 2, input.cols + 2, CV_8UC1);
           tmp = Scalar::all(0);
-          rectangle(tmp, area, BLUE, CV_FILLED);
+          Rect roi = rects[i].boundingRect();
+          //brANPR::inflate(roi, 0.2);
+          rectangle(tmp, roi, BLUE, CV_FILLED);
           bitwise_and(mask, tmp, mask);
-
         }
         if (showSteps)
         {
@@ -175,6 +176,7 @@ vector<Plate> DetectRegions::segment(Mat input){
                 pointsInterest.push_back(itMask.pos());
 
         RotatedRect minRect = minAreaRect(pointsInterest);
+        minRect = rects[i];
 
         if(verifySizes(minRect)){
             // rotated rectangle drawing 
@@ -208,7 +210,14 @@ vector<Plate> DetectRegions::segment(Mat input){
             cvtColor(resultResized, grayResult, CV_BGR2GRAY); 
             blur(grayResult, grayResult, Size(3,3));
             grayResult=histeq(grayResult);
-            imshow("GRAYRESULT", grayResult);
+            if (saveRegions){
+              stringstream ss(stringstream::in | stringstream::out);
+              ss << "c:\\tmp\\" << filename_notpath << "_" << i << ".jpg";
+              imwrite(ss.str(), grayResult);
+            }
+            stringstream ss;
+            ss << "GRAYRESULT[" << i << "] ";
+            imshow(ss.str().c_str(), grayResult);
             brANPR::drawRotatedRect(result, minRect, RED);
             output.push_back(Plate(grayResult,minRect.boundingRect()));
         }

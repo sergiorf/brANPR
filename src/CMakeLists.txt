@@ -10,14 +10,14 @@ find_package(Qt5Widgets)
 
 set(UI_FILES mainwindow.ui)
 set(QT_WRAP mainwindow.h)
-set(HEADERS mainwindow.h anprengine.h utils.h detectregions.h plate.h)
-set(CXX_FILES main.cpp mainwindow.cpp anprengine.cpp utils.cpp detectregions.cpp plate.cpp)
+set(HEADERS mainwindow.h anprengine.h utils.h detectregions.h plate.h OCR.h)
+set(CXX_FILES main.cpp mainwindow.cpp anprengine.cpp utils.cpp detectregions.cpp plate.cpp trainSVM.cpp OCR.cpp trainOCR.cpp)
 
 QT5_WRAP_UI(UISrcs ${UI_FILES})
 QT5_WRAP_CPP(MOCSrcs ${QT_WRAP})
 
-set(OpenCV_DIR "C:\\dev\\opencv\\build")
-find_package(OpenCV REQUIRED core imgproc highgui)
+set(OpenCV_DIR "C:\\dev\\opencv-2.4.11\\build")
+find_package(OpenCV REQUIRED core imgproc highgui ml)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

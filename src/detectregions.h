@@ -17,7 +17,9 @@ class DetectRegions{
     public:
         DetectRegions();
         string filename;
+        string filename_notpath;
         void setFilename(string f);
+        bool saveRegions;
         bool showSteps;
         vector<Plate> run();
     private:

@@ -24,6 +24,7 @@ namespace brANPR
 
     private slots:
     void on_actionOpen_Folder_triggered();
+    void on_actionTrainPlates_triggered();
     void on_nextBtn_clicked();
     void on_prevBtn_clicked();
 

@@ -109,7 +109,14 @@
     </property>
     <addaction name="actionOpen_Folder"/>
    </widget>
+   <widget class="QMenu" name="menuTrain">
+    <property name="title">
+     <string>Train</string>
+    </property>
+    <addaction name="actionTrainPlates"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuTrain"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -123,6 +130,11 @@
   <action name="actionOpen_Folder">
    <property name="text">
     <string>Open Folder</string>
+   </property>
+  </action>
+  <action name="actionTrainPlates">
+   <property name="text">
+    <string>Plates</string>
    </property>
   </action>
  </widget>
