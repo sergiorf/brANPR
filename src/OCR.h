@@ -1,14 +1,3 @@
-/*****************************************************************************
-*   Number Plate Recognition using SVM and Neural Networks
-******************************************************************************
-*   by David Millán Escrivá, 5th Dec 2012
-*   http://blog.damiles.com
-******************************************************************************
-*   Ch5 of the book "Mastering OpenCV with Practical Computer Vision Projects"
-*   Copyright Packt Publishing 2012.
-*   http://www.packtpub.com/cool-projects-with-opencv/book
-*****************************************************************************/
-
 #ifndef OCR_h
 #define OCR_h
 
@@ -46,7 +35,7 @@ class OCR{
         static const char strCharacters[];
         OCR(string trainFile);
         OCR();
-        string run(Plate *input);
+        bool run(Plate *input);
         int charSize;
         Mat preprocessChar(Mat in);
         int classify(Mat f);
@@ -54,7 +43,7 @@ class OCR{
         int classifyKnn(Mat f);
         void trainKnn(Mat trainSamples, Mat trainClasses, int k);
         Mat features(Mat input, int size);
-
+        static void train(const string& path);
     private:
         bool trained;
         vector<CharSegment> segment(Plate input);

@@ -114,6 +114,7 @@
      <string>Train</string>
     </property>
     <addaction name="actionTrainPlates"/>
+    <addaction name="actionTrainOCR"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTrain"/>
@@ -135,6 +136,11 @@
   <action name="actionTrainPlates">
    <property name="text">
     <string>Plates</string>
+   </property>
+  </action>
+  <action name="actionTrainOCR">
+   <property name="text">
+    <string>OCR</string>
    </property>
   </action>
  </widget>

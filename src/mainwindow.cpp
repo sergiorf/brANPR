@@ -44,7 +44,12 @@ namespace brANPR
 
   void MainWindow::on_actionTrainPlates_triggered()
   {
-    brANPR::trainPlates(5, 5, "C:\\dev\\brANPR\\SVM\\plates\\", "C:\\dev\\brANPR\\SVM\\noplates\\");
+    brANPR::trainPlates(6, 6, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
+  }
+
+  void MainWindow::on_actionTrainOCR_triggered()
+  {
+    OCR::train("C:\\dev\\brANPR\\train\\OCR\\");
   }
 
   void MainWindow::resizeEvent(QResizeEvent *event)
@@ -58,9 +63,10 @@ namespace brANPR
     if (_images.size() > index)
     {
       DetectRegions detectRegions;
-      detectRegions.setFilename(_images[index].toUtf8().constData());
+      string filename = _images[index].toUtf8().constData();
+      detectRegions.setFilename(filename);
       detectRegions.showSteps = false;
-      detectRegions.saveRegions = true;
+      detectRegions.saveRegions = false;
       vector<Plate> posible_regions = detectRegions.run();
 
       //SVM for each plate region to get valid car plates
@@ -102,24 +108,25 @@ namespace brANPR
       
       //For each plate detected, recognize it with OCR
       OCR ocr("C:\\dev\\brANPR\\src\\OCR.xml");
-      ocr.saveSegments = false;
-      ocr.DEBUG = true;
-      //ocr.filename = filename_whithoutExt;
+      ocr.saveSegments = true;
+      ocr.DEBUG = false;
+      ocr.filename = brANPR::getFilename(filename);
       Mat input_image;
       input_image = imread(_images[index].toUtf8().constData(), 1);
       for (int i = 0; i < plates.size(); i++){
         Plate plate = plates[i];
-
-        string plateNumber = ocr.run(&plate);
-        string licensePlate = plate.str();
-        cout << "================================================\n";
-        cout << "License plate number: " << licensePlate << "\n";
-        cout << "================================================\n";
-        rectangle(input_image, plate.position, Scalar(0, 0, 200));
-        putText(input_image, licensePlate, Point(plate.position.x, plate.position.y), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 200), 2);
-        if (false){
-          imshow("Plate Detected seg", plate.plateImg);
-          cvWaitKey(0);
+        if (ocr.run(&plate))
+        {
+          string licensePlate = plate.str();
+          cout << "================================================\n";
+          cout << "License plate number: " << licensePlate << "\n";
+          cout << "================================================\n";
+          rectangle(input_image, plate.position, Scalar(0, 0, 200));
+          putText(input_image, licensePlate, Point(plate.position.x, plate.position.y), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 200), 2);
+          if (false){
+            imshow("Plate Detected seg", plate.plateImg);
+            cvWaitKey(0);
+          }
         }
       }
       imshow("Plate Detected", input_image);

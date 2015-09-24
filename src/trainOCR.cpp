@@ -29,11 +29,6 @@ int main_refactorme2( int argc, char** argv )
         return 0;
     }        
 
-
-
-
-
-
     Mat classes;
     Mat trainingDataf5;
     Mat trainingDataf10;
@@ -71,7 +66,7 @@ int main_refactorme2( int argc, char** argv )
     trainingDataf20.convertTo(trainingDataf20, CV_32FC1);
     Mat(trainingLabels).copyTo(classes);
 
-    FileStorage fs("OCR.xml", FileStorage::WRITE);
+    FileStorage fs("C:\\dev\\brANPR\\src\\OCR.xml", FileStorage::WRITE);
     fs << "TrainingDataF5" << trainingDataf5;
     fs << "TrainingDataF10" << trainingDataf10;
     fs << "TrainingDataF15" << trainingDataf15;
