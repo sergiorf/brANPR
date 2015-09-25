@@ -88,4 +88,38 @@ namespace brANPR
       fs << "classes" << classes;
       fs.release();
     }
+
+    string applyCountryRules(const string& licensePlate)
+    {
+      stringstream ss;
+      int i = 0;
+      if (licensePlate.size())
+        return licensePlate;
+      for (const char& c : licensePlate)
+      {
+        if (i < 3)
+        {
+          switch (c)
+          {
+              case '5': ss << 'S'; break;
+              case '0': ss << 'O'; break;
+              case '8': ss << 'B'; break;
+              default: ss << c; break;
+          }
+        }
+        else
+        {
+          switch (c)
+          {
+          case 'S': ss << '5'; break;
+          case 'O': ss << '0'; break;
+          case 'D': ss << '0'; break;
+          case 'B': ss << '8'; break;
+          default: ss << c; break;
+          }
+        }
+        i++;
+      }
+      return ss.str();
+    }
 };

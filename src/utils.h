@@ -10,4 +10,5 @@ namespace brANPR
   void inflate(cv::Rect& rect, double perc);
   std::string getFilename(const std::string& s);
   void trainPlates(int numPlates, int numNoPlates, const std::string& path_Plates, const std::string& path_NoPlates);
+  std::string applyCountryRules(const std::string& licensePlate);
 };

@@ -1,7 +1,97 @@
 #include "OCR.h"
 
-const char OCR::strCharacters[] = {'0','1','2','3','4','5','6','7','8','9','B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'};
+const char OCR::strCharacters[] = {'0','1','2','3','4','5','6','7','8','9','B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 const int OCR::numCharacters=30;
+
+static void ThinSubiteration1(Mat & pSrc, Mat & pDst) {
+  int rows = pSrc.rows;
+  int cols = pSrc.cols;
+  pSrc.copyTo(pDst);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (pSrc.at<int>(i, j) == 255) {
+        /// get 8 neighbors
+        /// calculate C(p)
+        int neighbor0 = (int)pSrc.at<float>(i - 1, j - 1);
+        int neighbor1 = (int)pSrc.at<float>(i - 1, j);
+        int neighbor2 = (int)pSrc.at<float>(i - 1, j + 1);
+        int neighbor3 = (int)pSrc.at<float>(i, j + 1);
+        int neighbor4 = (int)pSrc.at<float>(i + 1, j + 1);
+        int neighbor5 = (int)pSrc.at<float>(i + 1, j);
+        int neighbor6 = (int)pSrc.at<float>(i + 1, j - 1);
+        int neighbor7 = (int)pSrc.at<float>(i, j - 1);
+        int C = int(~neighbor1 & (neighbor2 | neighbor3)) +
+          int(~neighbor3 & (neighbor4 | neighbor5)) +
+          int(~neighbor5 & (neighbor6 | neighbor7)) +
+          int(~neighbor7 & (neighbor0 | neighbor1));
+        if (C == 1) {
+          /// calculate N
+          int N1 = int(neighbor0 | neighbor1) +
+            int(neighbor2 | neighbor3) +
+            int(neighbor4 | neighbor5) +
+            int(neighbor6 | neighbor7);
+          int N2 = int(neighbor1 | neighbor2) +
+            int(neighbor3 | neighbor4) +
+            int(neighbor5 | neighbor6) +
+            int(neighbor7 | neighbor0);
+          int N = min(N1, N2);
+          if ((N == 2) || (N == 3)) {
+            /// calculate criteria 3
+            int c3 = (neighbor1 | neighbor2 | ~neighbor4) & neighbor3;
+            if (c3 == 0) {
+              pDst.at<int>(i, j) = 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+static void ThinSubiteration2(Mat & pSrc, Mat & pDst) {
+  int rows = pSrc.rows;
+  int cols = pSrc.cols;
+  pSrc.copyTo(pDst);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (pSrc.at<float>(i, j) == 1.0f) {
+        /// get 8 neighbors
+        /// calculate C(p)
+        int neighbor0 = (int)pSrc.at<float>(i - 1, j - 1);
+        int neighbor1 = (int)pSrc.at<float>(i - 1, j);
+        int neighbor2 = (int)pSrc.at<float>(i - 1, j + 1);
+        int neighbor3 = (int)pSrc.at<float>(i, j + 1);
+        int neighbor4 = (int)pSrc.at<float>(i + 1, j + 1);
+        int neighbor5 = (int)pSrc.at<float>(i + 1, j);
+        int neighbor6 = (int)pSrc.at<float>(i + 1, j - 1);
+        int neighbor7 = (int)pSrc.at<float>(i, j - 1);
+        int C = int(~neighbor1 & (neighbor2 | neighbor3)) +
+          int(~neighbor3 & (neighbor4 | neighbor5)) +
+          int(~neighbor5 & (neighbor6 | neighbor7)) +
+          int(~neighbor7 & (neighbor0 | neighbor1));
+        if (C == 1) {
+          /// calculate N
+          int N1 = int(neighbor0 | neighbor1) +
+            int(neighbor2 | neighbor3) +
+            int(neighbor4 | neighbor5) +
+            int(neighbor6 | neighbor7);
+          int N2 = int(neighbor1 | neighbor2) +
+            int(neighbor3 | neighbor4) +
+            int(neighbor5 | neighbor6) +
+            int(neighbor7 | neighbor0);
+          int N = min(N1, N2);
+          if ((N == 2) || (N == 3)) {
+            int E = (neighbor5 | neighbor6 | ~neighbor0) & neighbor7;
+            if (E == 0) {
+              pDst.at<float>(i, j) = 0.0f;
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 CharSegment::CharSegment(){}
 CharSegment::CharSegment(Mat i, Rect p){
@@ -69,7 +159,7 @@ bool OCR::verifySizes(Mat r){
     float percPixels=area/bbArea;
     if(DEBUG)
         cout << "Aspect: "<< aspect << " ["<< minAspect << "," << maxAspect << "] "  << "Area "<< percPixels <<" Char aspect " << charAspect  << " Height char "<< r.rows << "\n";
-    if(percPixels < 0.85 && charAspect > minAspect && charAspect < maxAspect && r.rows >= minHeight && r.rows < maxHeight)
+    if(percPixels < 0.87 && charAspect > minAspect && charAspect < maxAspect && r.rows >= minHeight && r.rows < maxHeight)
         return true;
     else
         return false;
@@ -78,15 +168,41 @@ bool OCR::verifySizes(Mat r){
 vector<CharSegment> OCR::segment(Plate plate){
     Mat input=plate.plateImg;
     imshow("segmenting...", input);
-
-    Mat element = getStructuringElement(MORPH_RECT, Size(17, 5));
-    //  Mat element = getStructuringElement(MORPH_RECT, Size(17, 3));
-
     vector<CharSegment> output;
     //Threshold input image
     Mat img_threshold;
-    //threshold(input, img_threshold, 60, 255, CV_THRESH_BINARY_INV);
+
+    ////threshold(input, img_threshold, 60, 255, CV_THRESH_BINARY_INV);
     threshold(input, img_threshold, 150, 255, CV_THRESH_BINARY);
+    imshow("Threshold plate", img_threshold);
+
+ //   adaptiveThreshold(input, img_threshold, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 11, 2);
+
+  //  ThinSubiteration1(img_threshold, img_threshold);
+
+  /*  
+  threshold(input, img_threshold, 0, 255, CV_THRESH_BINARY + CV_THRESH_OTSU);
+    imshow("OTSU plate", img_threshold);
+
+    
+    int erosion_size = 1;
+    Mat element = getStructuringElement(cv::MORPH_CROSS,
+      cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
+      cv::Point(erosion_size, erosion_size));
+
+    morphologyEx(img_threshold, img_threshold, MORPH_OPEN, element);
+    */
+    
+
+
+    /*
+    // Apply erosion or dilation on the image
+    erode(img_threshold, img_threshold, element);
+    imshow("Threshold plate after erode", img_threshold);
+
+    dilate(img_threshold, img_threshold, element);
+    */
+
     if(DEBUG)
         imshow("Threshold plate", img_threshold);
     Mat img_contours;
@@ -118,13 +234,11 @@ vector<CharSegment> OCR::segment(Plate plate){
         rectangle(result, mr, Scalar(0,255,0));
         //Crop image
         Mat auxRoi(img_threshold, mr);
-        /*
         {
           stringstream ss;
           ss << "auxRoi[" << i++ << "] ";
           imshow(ss.str().c_str(), auxRoi);
         }
-        */
         if(verifySizes(auxRoi)){
             auxRoi=preprocessChar(auxRoi);
             output.push_back(CharSegment(auxRoi, mr));
@@ -248,9 +362,9 @@ void OCR::drawVisualFeatures(Mat character, Mat hhist, Mat vhist, Mat lowData){
     line(img, Point(0,100), Point(121,100), Scalar(0,0,255));
     line(img, Point(20,0), Point(20,121), Scalar(0,0,255));
 
-    imshow("Visual Features", img);
+   // imshow("Visual Features", img);
 
-    cvWaitKey(0);
+   // cvWaitKey(0);
 }
 
 Mat OCR::features(Mat in, int sizeData){
@@ -376,8 +490,8 @@ bool OCR::run(Plate *input){
     return segments.size()>0;
 }
 
-//const char OCR::strCharacters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z' };
-const int numFilesChars[] =         {  3,   0,   3,   8,   4,   5,   1,   3,   7,   6,   9,   0,   3,   0,   1,   1,   0,   1,   0,   2,   0,   2,   0,   1,   0,   2,   1,   0,   4,   0 };
+//const char OCR::strCharacters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+const int numFilesChars[] =         {  5,   0,   3,   9,   5,   8,   1,   4,   9,   8,   10,   0,   3,   0,   1,   1,   0,   1,   0,   3,   0,   3,   0,   2,  0,   4,   0,   1,   0,   4,   0 };
 //const int numFilesChars[] = { 35, 40, 42, 41, 42, 33, 30, 31, 49, 44, 30, 24, 21, 20, 34, 9, 10, 3, 11, 3, 15, 4, 9, 12, 10, 21, 18, 8, 15, 7 };
 
 void OCR::train(const string& path)

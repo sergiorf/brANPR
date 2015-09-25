@@ -44,7 +44,7 @@ namespace brANPR
 
   void MainWindow::on_actionTrainPlates_triggered()
   {
-    brANPR::trainPlates(6, 6, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
+    brANPR::trainPlates(8, 9, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
   }
 
   void MainWindow::on_actionTrainOCR_triggered()
@@ -109,7 +109,7 @@ namespace brANPR
       //For each plate detected, recognize it with OCR
       OCR ocr("C:\\dev\\brANPR\\src\\OCR.xml");
       ocr.saveSegments = true;
-      ocr.DEBUG = false;
+      ocr.DEBUG = true;
       ocr.filename = brANPR::getFilename(filename);
       Mat input_image;
       input_image = imread(_images[index].toUtf8().constData(), 1);
@@ -117,7 +117,7 @@ namespace brANPR
         Plate plate = plates[i];
         if (ocr.run(&plate))
         {
-          string licensePlate = plate.str();
+          string licensePlate = brANPR::applyCountryRules(plate.str());
           cout << "================================================\n";
           cout << "License plate number: " << licensePlate << "\n";
           cout << "================================================\n";
