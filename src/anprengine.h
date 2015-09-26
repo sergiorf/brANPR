@@ -13,17 +13,19 @@ namespace brANPR
     ANPREngine();
     void run(const std::string& picPath);
     QImage original() const;
-    QImage sobel() const;
-    QImage processed1() const;
+    QImage segmented() const;
+    QImage processed_plates() const;
+    QImage plate_detected() const;
   private:
     QImage mat2QImage(const cv::Mat& src) const;
-    void findContours(const cv::InputOutputArray& src, std::vector<std::vector<cv::Point>>&  contours, 
+    void findContours(const cv::InputOutputArray& src, std::vector<std::vector<cv::Point>>& contours,
       std::vector<cv::RotatedRect>& boundingRects) const;
     void preprocess(cv::InputArray src, cv::OutputArray dst);
     bool verifySizes(cv::RotatedRect candidate) const;
     QImage _Original;
-    QImage _Sobel;
-    QImage _Processed1;
+    QImage _Segmented;
+    QImage _ProcessedPlates;
+    QImage _PlateDetected;
   };
 };
 

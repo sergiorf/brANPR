@@ -5,6 +5,8 @@
 #include "utils.h"
 #include <time.h>
 #include <random>
+#include "DetectRegions.h"
+#include "OCR.h"
 
 using namespace std;
 using namespace cv;
@@ -20,101 +22,87 @@ namespace brANPR
   {
   }
 
-  void ANPREngine::run(const string& picPath)
+  void ANPREngine::run(const string& filename)
   {
-    auto input = imread(picPath, CV_LOAD_IMAGE_COLOR);
-    Mat processed;
-    preprocess(input, processed);
-    vector<vector<Point>> contours;
-    vector<RotatedRect> rects;
-    findContours(processed, contours, rects);
+    _Original = mat2QImage(imread(filename));
+    DetectRegions detectRegions;
+    detectRegions.setFilename(filename);
+    detectRegions.showSteps = false;
+    detectRegions.saveRegions = false;
+    Mat segmented;
+    vector<Plate> posible_regions = detectRegions.run(segmented);
+    _Segmented = mat2QImage(segmented);
 
+    //SVM for each plate region to get valid car plates
+    //Read file storage.
+    FileStorage fs;
+    fs.open("C:\\dev\\brANPR\\src\\SVM.xml", FileStorage::READ);
+    Mat SVM_TrainingData;
+    Mat SVM_Classes;
+    fs["TrainingData"] >> SVM_TrainingData;
+    fs["classes"] >> SVM_Classes;
+    //Set SVM params
+    CvSVMParams SVM_params;
+    SVM_params.svm_type = CvSVM::C_SVC;
+    SVM_params.kernel_type = CvSVM::LINEAR; //CvSVM::LINEAR;
+    SVM_params.degree = 0;
+    SVM_params.gamma = 1;
+    SVM_params.coef0 = 0;
+    SVM_params.C = 1;
+    SVM_params.nu = 0;
+    SVM_params.p = 0;
+    SVM_params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 0.01);
+    //Train SVM
+    CvSVM svmClassifier(SVM_TrainingData, SVM_Classes, Mat(), Mat(), SVM_params);
 
-    // Draw blue contours on a white image
-    cv::Mat result;
-    input.copyTo(result);
-    cv::drawContours(result, contours,
-      -1, // draw all contours
-      BLUE, 1); // with a thickness of 1
-
-    for (int i = 0; i < rects.size(); i++){
-      //For better rect cropping for each possible box
-      //Make floodfill algorithm because the plate has white background
-      //And then we can retrieve more clearly the contour box
-      circle(result, rects[i].center, 3, GREEN, -1);
-      //get the min size between width and height
-      auto minSize = min(rects[i].size.width, rects[i].size.height) * 0.5;
-      //initialize rand and get 5 points around center for floodfill algorithm
-      srand(time(nullptr));
-      //Initialize floodfill parameters and variables
-      Mat mask;
-      mask.create(input.rows + 2, input.cols + 2, CV_8UC1);
-      mask = Scalar::all(0);
-      const Scalar loDiff{30, 30, 30}, upDiff{30, 30, 30};
-     // const Scalar loDiff{ 20, 20, 20 }, upDiff{ 20, 20, 20 };
-      const auto connectivity = 4;
-      const auto newMaskVal = 255;
-      const auto numSeeds = 10;
-      Rect ccomp;
-      int flags = connectivity + (newMaskVal << 8) + CV_FLOODFILL_FIXED_RANGE + CV_FLOODFILL_MASK_ONLY;
-      for (int j = 0; j < numSeeds; j++){
-        Point seed;
-        seed.x = rects[i].center.x + rand() % static_cast<int>(minSize) - (minSize / 2);
-        seed.y = rects[i].center.y + rand() % static_cast<int>(minSize) - (minSize / 2);
-        circle(result, seed, 1, YELLOW, -1);
-        auto area = floodFill(input, mask, seed, BLUE, &ccomp, loDiff, upDiff, flags);
-      }
-      imshow("MASK", mask);
-      cvWaitKey(0);
-
-      //Check new floodfill mask match for a correct patch.
-      //Get all points detected for get Minimal rotated Rect
-      vector<Point> pointsInterest;
-      Mat_<uchar>::iterator itMask = mask.begin<uchar>();
-      Mat_<uchar>::iterator end = mask.end<uchar>();
-      for (; itMask != end; ++itMask)
-      if (*itMask == 255)
-        pointsInterest.push_back(itMask.pos());
-      RotatedRect minRect = minAreaRect(pointsInterest);
-      if (verifySizes(minRect))
-      {
-        drawRotatedRect(input, minRect, RED);
-      }
-    }
-    imshow("result",result);
-
-    
-    drawRotatedRect(processed, rects, YELLOW);
-    drawRotatedRect(input, rects, YELLOW);
-    _Original = mat2QImage(input);
-    _Processed1 = mat2QImage(processed);
-  }
-
-  void ANPREngine::findContours(const InputOutputArray& src, vector<vector<Point>>&  contours, 
-    vector<RotatedRect>& boundingRects) const
-  {
-    //Find contours of possibles plates
-    cv::findContours(src,
-      contours, // a vector of contours
-      CV_RETR_EXTERNAL, // retrieve the external contours
-      CV_CHAIN_APPROX_NONE); // all pixels of each contour
-    //Start to iterate to each contour found
-    vector<vector<Point>>::iterator itc = contours.begin();
-    //Remove patch that has no inside limits of aspect ratio and area.
-    while (itc != contours.end())
+    //For each possible plate, classify with svm if it's a plate or no
+    vector<Plate> plates;
+    for (int i = 0; i < posible_regions.size(); i++)
     {
-      //Create bounding rect of object
-      RotatedRect mr = minAreaRect(Mat(*itc));
-      if (!verifySizes(mr))
-      {
-        itc = contours.erase(itc);
-      }
-      else
-      {
-        ++itc;
-        boundingRects.push_back(mr);
-      }
+      Mat img = posible_regions[i].plateImg;
+      Mat p = img.reshape(1, 1);
+      p.convertTo(p, CV_32FC1);
+
+      int response = (int)svmClassifier.predict(p);
+      if (response == 1)
+        plates.push_back(posible_regions[i]);
     }
+
+    cout << "Num plates detected: " << plates.size() << "\n";
+
+    //For each plate detected, recognize it with OCR
+    OCR ocr("C:\\dev\\brANPR\\src\\OCR.xml");
+    ocr.saveSegments = false;
+    ocr.DEBUG = false;
+    ocr.filename = brANPR::getFilename(filename);
+    Mat input_image;
+    input_image = imread(filename, 1);
+    vector<Mat> proc_plates;
+    for (int i = 0; i < plates.size(); i++)
+    {
+      Plate plate = plates[i];
+      Mat composite;
+      if (ocr.run(&plate, composite))
+      {
+        string licensePlate = brANPR::applyCountryRules(plate.str());
+        cout << "================================================\n";
+        cout << "License plate number: " << licensePlate << "\n";
+        cout << "================================================\n";
+        rectangle(input_image, plate.position, Scalar(0, 0, 200));
+        putText(input_image, licensePlate, Point(plate.position.x, plate.position.y), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 200), 2);
+        if (false)
+        {
+          imshow("Plate Detected seg", plate.plateImg);
+          cvWaitKey(0);
+        }
+      }
+      proc_plates.push_back(composite);
+      Mat tmp;
+      hconcat(proc_plates, tmp);
+      _ProcessedPlates = mat2QImage(tmp);
+    }
+    _PlateDetected = mat2QImage(input_image);
+    // imshow("Plate Detected", input_image);
   }
 
   QImage ANPREngine::original() const
@@ -122,52 +110,19 @@ namespace brANPR
     return _Original;
   }
 
-  QImage ANPREngine::processed1() const
+  QImage ANPREngine::processed_plates() const
   {
-    return _Processed1;
+    return _ProcessedPlates;
   }
 
-  QImage ANPREngine::sobel() const
+  QImage ANPREngine::segmented() const
   {
-    return _Sobel;
+    return _Segmented;
   }
 
-  bool ANPREngine::verifySizes(RotatedRect candidate) const
+  QImage ANPREngine::plate_detected() const
   {
-    float error = 0.4;
-    //Brazil car plate size: 40x13 aspect 3.077
-    const float aspect = 3.077;
-    //Set a min and max area. All other patches are discarded
-    const double minh = 25, maxh = 100;
-    const int min = pow(minh, 2) * aspect; // minimum area
-    const int max = pow(maxh, 2) * aspect; // maximum area
-    //Get only patches that match to a respect ratio.
-    auto rmin = aspect - aspect*error;
-    auto rmax = aspect + aspect*error;
-    int area = candidate.size.height * candidate.size.width;
-    auto r = static_cast<float>(candidate.size.width) / static_cast<float>(candidate.size.height);
-    if (r < 1)
-      r = 1 / r;
-    return ((area < min || area > max) || (r < rmin || r > rmax)) ? false : true;
-  }
-
-  void ANPREngine::preprocess(InputArray src, OutputArray dst)
-  {
-    Mat img_gray;
-    Mat tmp;
-    double kernel_length = 6;
-    bilateralFilter(src, tmp, kernel_length, kernel_length * 2, kernel_length / 2);
-    cvtColor(tmp, img_gray, CV_BGR2GRAY);
-    //Detect vertical edges using Sobel filter. Car plates have high density of vertical lines
-    Mat img_sobel;
-    const auto xorder = 1, yorder = 0;
-    Sobel(img_gray, img_sobel, CV_8U, xorder, yorder);
-    convertScaleAbs(img_sobel, img_sobel);
-    _Sobel = mat2QImage(img_sobel);
-    threshold(img_sobel, dst, 0, 255, CV_THRESH_OTSU + CV_THRESH_BINARY);
-    //Connect all regions that have high density of edges
-    auto element = getStructuringElement(MORPH_RECT, Size(17, 5));
-    morphologyEx(dst, dst, CV_MOP_CLOSE, element);
+    return _PlateDetected;
   }
 
   QImage ANPREngine::mat2QImage(const cv::Mat& inMat) const
@@ -175,26 +130,26 @@ namespace brANPR
     switch (inMat.type())
     {
     case CV_8UC4:
-    {
-                  QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB32);
-                  image.bits();
-                  return image;
-    }
+      {
+        QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB32);
+        image.bits();
+        return image;
+      }
     case CV_8UC3:
-    {
-                  QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB888);
-                  image.bits();
-                  return image.rgbSwapped();
-    }
+      {
+        QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB888);
+        image.bits();
+        return image.rgbSwapped();
+      }
     case CV_8UC1:
-    {
-                  cv::Mat rgb;
-                  cv::cvtColor(inMat, rgb, CV_GRAY2BGR);
-                  cv::cvtColor(rgb, rgb, CV_BGR2BGRA);
-                  auto temp = QImage(static_cast<unsigned char*>(rgb.data), rgb.cols, rgb.rows, QImage::Format_ARGB32);
-                  auto image = temp.copy();
-                  return image;
-    }
+      {
+        cv::Mat rgb;
+        cv::cvtColor(inMat, rgb, CV_GRAY2BGR);
+        cv::cvtColor(rgb, rgb, CV_BGR2BGRA);
+        auto temp = QImage(static_cast<unsigned char*>(rgb.data), rgb.cols, rgb.rows, QImage::Format_ARGB32);
+        auto image = temp.copy();
+        return image;
+      }
     default:
       cerr << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << inMat.type();
       break;

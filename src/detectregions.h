@@ -18,14 +18,14 @@ class DetectRegions{
         DetectRegions();
         string filename;
         string filename_notpath;
-        void setFilename(string f);
+        void setFilename(const string& f);
         bool saveRegions;
         bool showSteps;
-        vector<Plate> run();
+        vector<Plate> run(Mat& result);
     private:
-        vector<Plate> segment(Mat input);
-        bool verifySizes(RotatedRect mr);
-        Mat histeq(Mat in);
+        vector<Plate> segment(const Mat& input, Mat& resut) const;
+        bool verifySizes(RotatedRect mr) const;
+        Mat histeq(Mat in) const;
 };
 
 #endif

@@ -93,7 +93,7 @@ namespace brANPR
     {
       stringstream ss;
       int i = 0;
-      if (licensePlate.size())
+      if (licensePlate.size()!=7)
         return licensePlate;
       for (const char& c : licensePlate)
       {
