@@ -37,6 +37,12 @@ namespace brANPR
     bool showSteps;
   };
 
+  struct OCRTrainChars
+  {
+    char character;
+    int numSamples;
+  };
+
   class OCR
   {
   public:
@@ -44,7 +50,7 @@ namespace brANPR
     bool saveSegments;
     string filename;
     static const int numCharacters;
-    static const char strCharacters[];
+    static const OCRTrainChars trainChars[];
     OCR();
     OCR(const OCRSettings& settings);
     bool run(const OCRSettings& settings, Plate* input, Mat& composite);

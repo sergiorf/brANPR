@@ -19,7 +19,8 @@ namespace brANPR
     _engine(new ANPREngine())
   {
     ui->setupUi(this);
-    //connect(m_button, SIGNAL(clicked()), this, SLOT(mySlot()));
+    ui->prevBtn->setEnabled(false);
+    ui->nextBtn->setEnabled(false);
     _currptr = 0;
   }
 
@@ -37,10 +38,13 @@ namespace brANPR
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     QDirIterator it(dir, QStringList() << "*.jpg", QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())
-    {
       _images.push_back(it.next());
+    if (_images.size() > 0)
+    {
+      ui->prevBtn->setEnabled(true);
+      ui->nextBtn->setEnabled(true);
+      runEngine(_currptr);
     }
-    runEngine(_currptr);
   }
 
   void MainWindow::on_actionTrainPlates_triggered()

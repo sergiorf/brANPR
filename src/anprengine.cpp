@@ -95,7 +95,8 @@ namespace brANPR
         cout << "License plate number: " << licensePlate << "\n";
         cout << "================================================\n";
         rectangle(input_image, plate.position, Scalar(0, 0, 200));
-        putText(input_image, licensePlate, Point(plate.position.x, plate.position.y), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 200), 2);
+        putText(input_image, licensePlate, Point(plate.position.x, plate.position.y),
+          CV_FONT_HERSHEY_SIMPLEX, 1, CV_RGB(0, 0, 0), 2);
       }
       proc_plates.push_back(composite);
       Mat tmp;
