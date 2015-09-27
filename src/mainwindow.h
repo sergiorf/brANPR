@@ -25,6 +25,7 @@ namespace brANPR
 
     private slots:
     void on_actionOpen_Folder_triggered();
+    void on_actionOpen_File_triggered();
     void on_actionTrainPlates_triggered();
     void on_actionTrainOCR_triggered();
     void on_actionSettings_triggered();
@@ -36,6 +37,7 @@ namespace brANPR
 
   private:
     void runEngine(int index) const;
+    void reset();
     Ui::MainWindow* ui;
     std::vector<QString> _images;
     int _currptr;

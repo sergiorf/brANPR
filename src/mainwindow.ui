@@ -108,6 +108,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Folder"/>
+    <addaction name="actionOpen_File"/>
    </widget>
    <widget class="QMenu" name="menuTrain">
     <property name="title">
@@ -153,6 +154,11 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionOpen_File">
+   <property name="text">
+    <string>Open File</string>
    </property>
   </action>
  </widget>
