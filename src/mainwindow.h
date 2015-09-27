@@ -23,7 +23,7 @@ namespace brANPR
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-  private slots:
+    private slots:
     void on_actionOpen_Folder_triggered();
     void on_actionTrainPlates_triggered();
     void on_actionTrainOCR_triggered();

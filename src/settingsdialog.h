@@ -5,42 +5,28 @@
 class QDialogButtonBox;
 class QFileInfo;
 class QTabWidget;
+class QCheckBox;
+class QLineEdit;
 
 namespace brANPR
 {
   struct ANPRSettings;
   struct OCRSettings;
 
-  class GeneralTab : public QWidget
-  {
-    Q_OBJECT
-
-  public:
-    explicit GeneralTab(const QFileInfo& fileInfo, QWidget* parent = 0);
-  };
-
-  class PermissionsTab : public QWidget
-  {
-    Q_OBJECT
-
-  public:
-    explicit PermissionsTab(const QFileInfo& fileInfo, QWidget* parent = 0);
-  };
-
-  class ApplicationsTab : public QWidget
-  {
-    Q_OBJECT
-
-  public:
-    explicit ApplicationsTab(const QFileInfo& fileInfo, QWidget* parent = 0);
-  };
-
   class OCRTab : public QWidget
   {
     Q_OBJECT
 
+    friend class SettingsDialog;
   public:
     explicit OCRTab(const OCRSettings& settings, QWidget* parent = 0);
+    OCRSettings getSettings() const;
+  private:
+    QLineEdit* _trainFileEdit;
+    QLineEdit* _trainingDataPathEdit;
+    QLineEdit* _segmentsStoreEdit;
+    QCheckBox* _saveSegments;
+    QCheckBox* _showSteps;
   };
 
   class SettingsDialog : public QDialog
@@ -49,9 +35,10 @@ namespace brANPR
 
   public:
     explicit SettingsDialog(const ANPRSettings& settings, QWidget* parent = 0);
-
+    ANPRSettings getSettings() const;
   private:
     QTabWidget* tabWidget;
     QDialogButtonBox* buttonBox;
+    OCRTab* _ocrTab;
   };
 };
