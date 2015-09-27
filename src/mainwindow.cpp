@@ -33,8 +33,8 @@ namespace brANPR
     _images.clear();
     _currptr = 0;
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select Folder"),
-                                                    "C:\\dev\\brANPR",
-                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+      "C:\\dev\\brANPR",
+      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     QDirIterator it(dir, QStringList() << "*.jpg", QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())
     {
@@ -50,7 +50,7 @@ namespace brANPR
 
   void MainWindow::on_actionTrainOCR_triggered()
   {
-    OCR::train("C:\\dev\\brANPR\\train\\OCR\\");
+    OCR::train(_engine->getSettings().OCR);
   }
 
   void MainWindow::on_actionSettings_triggered()

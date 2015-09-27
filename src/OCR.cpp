@@ -2,7 +2,7 @@
 
 namespace brANPR
 {
-  const char OCR::strCharacters[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+  const char OCR::strCharacters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
   const int OCR::numCharacters = 30;
 
   CharSegment::CharSegment()
@@ -23,16 +23,16 @@ namespace brANPR
     charSize = 20;
   }
 
-  OCR::OCR(string trainFile)
+  OCR::OCR(const OCRSettings& settings)
   {
-    DEBUG = false;
+    DEBUG = settings.showSteps;
     trained = false;
-    saveSegments = false;
+    saveSegments = settings.saveSegments;
     charSize = 20;
 
     //Read file storage.
     FileStorage fs;
-    fs.open(trainFile, FileStorage::READ);
+    fs.open(settings.trainFile, FileStorage::READ);
     Mat TrainingData;
     Mat Classes;
     fs["TrainingDataF15"] >> TrainingData;
@@ -134,18 +134,18 @@ namespace brANPR
     //Find contours of possibles characters
     vector<vector<Point>> contours;
     findContours(img_contours,
-                 contours, // a vector of contours
-                 CV_RETR_EXTERNAL, // retrieve the external contours
-                 CV_CHAIN_APPROX_NONE); // all pixels of each contours
+      contours, // a vector of contours
+      CV_RETR_EXTERNAL, // retrieve the external contours
+      CV_CHAIN_APPROX_NONE); // all pixels of each contours
 
     // Draw blue contours on a white image
     cv::Mat result;
     img_threshold.copyTo(result);
     cvtColor(result, result, CV_GRAY2RGB);
     cv::drawContours(result, contours,
-                     -1, // draw all contours
-                     cv::Scalar(255, 0, 0), // in blue
-                     1); // with a thickness of 1
+      -1, // draw all contours
+      cv::Scalar(255, 0, 0), // in blue
+      1); // with a thickness of 1
 
     //Start to iterate to each contour founded
     vector<vector<Point>>::iterator itc = contours.begin();
@@ -384,7 +384,7 @@ namespace brANPR
     knnClassifier.train(trainSamples, trainClasses, Mat(), false, K);
   }
 
-  bool OCR::run(Plate* input, Mat& composite)
+  bool OCR::run(const OCRSettings& settings, Plate* input, Mat& composite)
   {
     //Segment chars of plate
     vector<CharSegment> segments = segment(*input, composite);
@@ -396,7 +396,7 @@ namespace brANPR
       if (saveSegments)
       {
         stringstream ss(stringstream::in | stringstream::out);
-        ss << "c:\\tmp\\" << filename << "_" << i << ".jpg";
+        ss << settings.segmentsStore << filename << "_" << i << ".jpg";
         imwrite(ss.str(), ch);
       }
       /*
@@ -417,21 +417,19 @@ namespace brANPR
   }
 
   //const char OCR::strCharacters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-  const int numFilesChars[] = {5, 2, 3, 9, 5, 8, 2, 4, 9, 9, 11, 0, 3, 0, 1, 1, 0, 1, 0, 3, 0, 3, 0, 3, 0, 4, 0, 2, 0, 4, 0};
+  const int numFilesChars[] = { 5, 2, 3, 9, 5, 8, 2, 4, 9, 9, 11, 0, 3, 0, 1, 1, 0, 1, 0, 3, 0, 3, 0, 3, 0, 4, 0, 2, 0, 4, 0 };
 
   //const int numFilesChars[] = { 35, 40, 42, 41, 42, 33, 30, 31, 49, 44, 30, 24, 21, 20, 34, 9, 10, 3, 11, 3, 15, 4, 9, 12, 10, 21, 18, 8, 15, 7 };
 
-  void OCR::train(const string& path)
+  void OCR::train(const OCRSettings& settings)
   {
     Mat classes;
     Mat trainingDataf5;
     Mat trainingDataf10;
     Mat trainingDataf15;
     Mat trainingDataf20;
-
     vector<int> trainingLabels;
     OCR ocr;
-
     for (int i = 0; i < OCR::numCharacters; i++)
     {
       int numFiles = numFilesChars[i];
@@ -439,7 +437,7 @@ namespace brANPR
       {
         cout << "Character " << OCR::strCharacters[i] << " file: " << j << "\n";
         stringstream ss(stringstream::in | stringstream::out);
-        ss << path << OCR::strCharacters[i] << "/" << j << ".jpg";
+        ss << settings.trainingDataPath << OCR::strCharacters[i] << "/" << j << ".jpg";
         Mat img = imread(ss.str(), 0);
         Mat f5 = ocr.features(img, 5);
         Mat f10 = ocr.features(img, 10);
@@ -459,7 +457,7 @@ namespace brANPR
     trainingDataf20.convertTo(trainingDataf20, CV_32FC1);
     Mat(trainingLabels).copyTo(classes);
 
-    FileStorage fs("C:\\dev\\brANPR\\src\\OCR.xml", FileStorage::WRITE);
+    FileStorage fs(settings.trainFile, FileStorage::WRITE);
     fs << "TrainingDataF5" << trainingDataf5;
     fs << "TrainingDataF10" << trainingDataf10;
     fs << "TrainingDataF15" << trainingDataf15;

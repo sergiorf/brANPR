@@ -45,15 +45,15 @@ namespace brANPR
     string filename;
     static const int numCharacters;
     static const char strCharacters[];
-    OCR(string trainFile);
     OCR();
-    bool run(Plate* input, Mat& composite);
+    OCR(const OCRSettings& settings);
+    bool run(const OCRSettings& settings, Plate* input, Mat& composite);
     int charSize;
     int classify(Mat f);
     void train(Mat trainData, Mat trainClasses, int nlayers);
     int classifyKnn(Mat f);
     void trainKnn(Mat trainSamples, Mat trainClasses, int k);
-    static void train(const string& path);
+    static void train(const OCRSettings& settings);
   private:
     bool trained;
     vector<CharSegment> segment(Plate input, Mat& composite) const;

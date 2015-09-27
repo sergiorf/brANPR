@@ -36,20 +36,28 @@ namespace brANPR
   {
     QLabel* trainFileLabel = new QLabel(tr("Train File:"));
     QLineEdit* trainFileEdit = new QLineEdit(QString(settings.trainFile.c_str()));
+    QLabel* trainDataPathLabel = new QLabel(tr("Train Data Path:"));
+    QLineEdit* trainDataPathEdit = new QLineEdit(QString(settings.trainingDataPath.c_str()));
+    QLabel* segmentsStoreLabel = new QLabel(tr("Segments Store:"));
+    QLineEdit* segmentsStoreEdit = new QLineEdit(QString(settings.segmentsStore.c_str()));
+    QCheckBox* saveSegments = new QCheckBox(tr("Save Segments"));
+    if (settings.saveSegments)
+      saveSegments->setChecked(true);
+    QCheckBox* showSteps = new QCheckBox(tr("Show Steps"));
+    if (settings.showSteps)
+      showSteps->setChecked(true);
     QVBoxLayout* mainLayout = new QVBoxLayout;
     mainLayout->addWidget(trainFileLabel);
     mainLayout->addWidget(trainFileEdit);
+    mainLayout->addWidget(trainDataPathLabel);
+    mainLayout->addWidget(trainDataPathEdit);
+    mainLayout->addWidget(segmentsStoreLabel);
+    mainLayout->addWidget(segmentsStoreEdit);
+    mainLayout->addWidget(saveSegments);
+    mainLayout->addWidget(showSteps);
     mainLayout->addStretch(1);
     setLayout(mainLayout);
   }
-
-  /*
-  string trainFile;
-  string trainingDataPath;
-  string segmentsStore;
-  bool saveSegments;
-  bool showSteps;
-  */
 
   GeneralTab::GeneralTab(const QFileInfo& fileInfo, QWidget* parent)
     : QWidget(parent)

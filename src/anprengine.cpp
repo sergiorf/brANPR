@@ -22,7 +22,11 @@ namespace brANPR
   {
     _Settings = {
       {
-        "C:\\dev\\brANPR\\src\\OCR.xml"
+        "C:\\dev\\brANPR\\src\\OCR.xml",
+        "C:\\dev\\brANPR\\train\\OCR\\",
+        "c:\\tmp\\",
+        false,
+        false,
       } };
   }
 
@@ -75,10 +79,8 @@ namespace brANPR
     cout << "Num plates detected: " << plates.size() << "\n";
 
     //For each plate detected, recognize it with OCR
-    OCR ocr(_Settings.OCR.trainFile);
-    ocr.saveSegments = true;
-    ocr.DEBUG = false;
-    ocr.filename = brANPR::getFilename(filename);
+    OCR ocr(_Settings.OCR);
+    ocr.filename = getFilename(filename);
     Mat input_image;
     input_image = imread(filename, 1);
     vector<Mat> proc_plates;
@@ -86,19 +88,14 @@ namespace brANPR
     {
       Plate plate = plates[i];
       Mat composite;
-      if (ocr.run(&plate, composite))
+      if (ocr.run(_Settings.OCR, &plate, composite))
       {
-        string licensePlate = brANPR::applyCountryRules(plate.str());
+        string licensePlate = applyCountryRules(plate.str());
         cout << "================================================\n";
         cout << "License plate number: " << licensePlate << "\n";
         cout << "================================================\n";
         rectangle(input_image, plate.position, Scalar(0, 0, 200));
         putText(input_image, licensePlate, Point(plate.position.x, plate.position.y), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 200), 2);
-        if (false)
-        {
-          imshow("Plate Detected seg", plate.plateImg);
-          cvWaitKey(0);
-        }
       }
       proc_plates.push_back(composite);
       Mat tmp;
