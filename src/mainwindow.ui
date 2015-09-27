@@ -109,6 +109,7 @@
     </property>
     <addaction name="actionOpen_Folder"/>
     <addaction name="actionOpen_File"/>
+    <addaction name="actionAnalyze_Folder"/>
    </widget>
    <widget class="QMenu" name="menuTrain">
     <property name="title">
@@ -159,6 +160,11 @@
   <action name="actionOpen_File">
    <property name="text">
     <string>Open File</string>
+   </property>
+  </action>
+  <action name="actionAnalyze_Folder">
+   <property name="text">
+    <string>Analyze Folder</string>
    </property>
   </action>
  </widget>

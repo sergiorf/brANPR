@@ -44,6 +44,7 @@ namespace brANPR
     foreach(const QString &str, fileNames)
     {
       qDebug() << QString(" [%1] ").arg(str);
+      _images.push_back(str);
     }
     if (_images.size() > 1)
     {
