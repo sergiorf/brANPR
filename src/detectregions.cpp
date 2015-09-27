@@ -11,12 +11,14 @@
 #define RED    CV_RGB(255, 0, 0)
 #define PINK   CV_RGB(238, 18, 137)
 
-void DetectRegions::setFilename(const string& s) {
+void DetectRegions::setFilename(const string& s)
+{
   filename = s;
   filename_notpath = brANPR::getFilename(s);
 }
 
-DetectRegions::DetectRegions(){
+DetectRegions::DetectRegions()
+{
   showSteps = false;
   saveRegions = false;
 }
@@ -31,8 +33,8 @@ bool DetectRegions::verifySizes(RotatedRect mr) const
   const int min = pow(minh, 2) * aspect; // minimum area
   const int max = pow(maxh, 2) * aspect; // maximum area
   //Get only patches that match to a respect ratio.
-  auto rmin = aspect - aspect*error;
-  auto rmax = aspect + aspect*error;
+  auto rmin = aspect - aspect * error;
+  auto rmax = aspect + aspect * error;
   int area = mr.size.height * mr.size.width;
   auto r = static_cast<float>(mr.size.width) / static_cast<float>(mr.size.height);
   if (r < 1)
@@ -43,7 +45,8 @@ bool DetectRegions::verifySizes(RotatedRect mr) const
 Mat DetectRegions::histeq(Mat in) const
 {
   Mat out(in.size(), in.type());
-  if (in.channels() == 3){
+  if (in.channels() == 3)
+  {
     Mat hsv;
     vector<Mat> hsvSplit;
     cvtColor(in, hsv, CV_BGR2HSV);
@@ -52,7 +55,8 @@ Mat DetectRegions::histeq(Mat in) const
     merge(hsvSplit, hsv);
     cvtColor(hsv, out, CV_HSV2BGR);
   }
-  else if (in.channels() == 1){
+  else if (in.channels() == 1)
+  {
     equalizeHist(in, out);
   }
   return out;
@@ -89,24 +93,27 @@ vector<Plate> DetectRegions::segment(const Mat& input, Mat& result) const
     imshow("Close", img_threshold);
 
   //Find contours of possibles plates
-  vector< vector< Point> > contours;
+  vector<vector<Point>> contours;
   findContours(img_threshold,
-    contours, // a vector of contours
-    CV_RETR_EXTERNAL, // retrieve the external contours
-    CV_CHAIN_APPROX_NONE); // all pixels of each contours
+               contours, // a vector of contours
+               CV_RETR_EXTERNAL, // retrieve the external contours
+               CV_CHAIN_APPROX_NONE); // all pixels of each contours
 
   //Start to iterate to each contour founded
-  vector<vector<Point> >::iterator itc = contours.begin();
+  vector<vector<Point>>::iterator itc = contours.begin();
   vector<RotatedRect> rects;
 
   //Remove patch that are no inside limits of aspect ratio and area.
-  while (itc != contours.end()) {
+  while (itc != contours.end())
+  {
     //Create bounding rect of object
     RotatedRect mr = minAreaRect(Mat(*itc));
-    if (!verifySizes(mr)){
+    if (!verifySizes(mr))
+    {
       itc = contours.erase(itc);
     }
-    else{
+    else
+    {
       ++itc;
       rects.push_back(mr);
     }
@@ -115,10 +122,11 @@ vector<Plate> DetectRegions::segment(const Mat& input, Mat& result) const
   // Draw blue contours on a white image
   input.copyTo(result);
   cv::drawContours(result, contours,
-    -1, // draw all contours
-    BLUE, 1); // with a thickness of 1
+                   -1, // draw all contours
+                   BLUE, 1); // with a thickness of 1
 
-  for (int i = 0; i < rects.size(); i++){
+  for (int i = 0; i < rects.size(); i++)
+  {
     //For better rect cropping for each possible box
     //Make floodfill algorithm because the plate has white background
     //And then we can retrieve more clearly the contour box
@@ -140,7 +148,8 @@ vector<Plate> DetectRegions::segment(const Mat& input, Mat& result) const
     int NumSeeds = 20;
     Rect ccomp;
     int flags = connectivity + (newMaskVal << 8) + CV_FLOODFILL_FIXED_RANGE + CV_FLOODFILL_MASK_ONLY;
-    for (int j = 0; j < NumSeeds; j++){
+    for (int j = 0; j < NumSeeds; j++)
+    {
       Point seed;
       seed.x = rects[i].center.x + rand() % (int)minSize - (minSize / 2);
       seed.y = rects[i].center.y + rand() % (int)minSize - (minSize / 2);
@@ -171,15 +180,17 @@ vector<Plate> DetectRegions::segment(const Mat& input, Mat& result) const
     Mat_<uchar>::iterator itMask = mask.begin<uchar>();
     Mat_<uchar>::iterator end = mask.end<uchar>();
     for (; itMask != end; ++itMask)
-    if (*itMask == 255)
-      pointsInterest.push_back(itMask.pos());
+      if (*itMask == 255)
+        pointsInterest.push_back(itMask.pos());
 
     RotatedRect minRect = minAreaRect(pointsInterest);
     minRect = rects[i];
 
-    if (verifySizes(minRect)){
+    if (verifySizes(minRect))
+    {
       // rotated rectangle drawing
-      Point2f rect_points[4]; minRect.points(rect_points);
+      Point2f rect_points[4];
+      minRect.points(rect_points);
       for (int j = 0; j < 4; j++)
         line(result, rect_points[j], rect_points[(j + 1) % 4], Scalar(0, 0, 255), 1, 8);
 
@@ -209,7 +220,8 @@ vector<Plate> DetectRegions::segment(const Mat& input, Mat& result) const
       cvtColor(resultResized, grayResult, CV_BGR2GRAY);
       blur(grayResult, grayResult, Size(3, 3));
       grayResult = histeq(grayResult);
-      if (saveRegions){
+      if (saveRegions)
+      {
         stringstream ss(stringstream::in | stringstream::out);
         ss << "c:\\tmp\\" << filename_notpath << "_" << i << ".jpg";
         imwrite(ss.str(), grayResult);

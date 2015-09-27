@@ -72,7 +72,7 @@ namespace brANPR
 
     //For each plate detected, recognize it with OCR
     OCR ocr("C:\\dev\\brANPR\\src\\OCR.xml");
-    ocr.saveSegments = false;
+    ocr.saveSegments = true;
     ocr.DEBUG = false;
     ocr.filename = brANPR::getFilename(filename);
     Mat input_image;
@@ -130,30 +130,40 @@ namespace brANPR
     switch (inMat.type())
     {
     case CV_8UC4:
-      {
-        QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB32);
-        image.bits();
-        return image;
-      }
+    {
+                  QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB32);
+                  image.bits();
+                  return image;
+    }
     case CV_8UC3:
-      {
-        QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB888);
-        image.bits();
-        return image.rgbSwapped();
-      }
+    {
+                  QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB888);
+                  image.bits();
+                  return image.rgbSwapped();
+    }
     case CV_8UC1:
-      {
-        cv::Mat rgb;
-        cv::cvtColor(inMat, rgb, CV_GRAY2BGR);
-        cv::cvtColor(rgb, rgb, CV_BGR2BGRA);
-        auto temp = QImage(static_cast<unsigned char*>(rgb.data), rgb.cols, rgb.rows, QImage::Format_ARGB32);
-        auto image = temp.copy();
-        return image;
-      }
+    {
+                  cv::Mat rgb;
+                  cv::cvtColor(inMat, rgb, CV_GRAY2BGR);
+                  cv::cvtColor(rgb, rgb, CV_BGR2BGRA);
+                  auto temp = QImage(static_cast<unsigned char*>(rgb.data), rgb.cols, rgb.rows, QImage::Format_ARGB32);
+                  auto image = temp.copy();
+                  return image;
+    }
     default:
       cerr << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << inMat.type();
       break;
     }
     return QImage();
+  }
+
+  void ANPREngine::setSettings(const ANPRSettings& settings)
+  {
+    _Settings = settings;
+  }
+
+  brANPR::ANPRSettings ANPREngine::getSettings() const
+  {
+    return _Settings;
   }
 }

@@ -14,18 +14,18 @@ using namespace std;
 using namespace cv;
 
 class DetectRegions{
-    public:
-        DetectRegions();
-        string filename;
-        string filename_notpath;
-        void setFilename(const string& f);
-        bool saveRegions;
-        bool showSteps;
-        vector<Plate> run(Mat& result);
-    private:
-        vector<Plate> segment(const Mat& input, Mat& resut) const;
-        bool verifySizes(RotatedRect mr) const;
-        Mat histeq(Mat in) const;
+public:
+  DetectRegions();
+  string filename;
+  string filename_notpath;
+  void setFilename(const string& f);
+  bool saveRegions;
+  bool showSteps;
+  vector<Plate> run(Mat& result);
+private:
+  vector<Plate> segment(const Mat& input, Mat& resut) const;
+  bool verifySizes(RotatedRect mr) const;
+  Mat histeq(Mat in) const;
 };
 
 #endif
