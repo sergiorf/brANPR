@@ -1,4 +1,5 @@
 #include <QtWidgets>
+#include <QString>
 
 #include "settingsdialog.h"
 #include "anprengine.h"
@@ -30,9 +31,25 @@ namespace brANPR
     setWindowTitle(tr("Settings"));
   }
 
-  OCRTab::OCRTab(const OCRSettings& settings, QWidget* parent) : QWidget(parent)
+  OCRTab::OCRTab(const OCRSettings& settings, QWidget* parent)
+    : QWidget(parent)
   {
+    QLabel* trainFileLabel = new QLabel(tr("Train File:"));
+    QLineEdit* trainFileEdit = new QLineEdit(QString(settings.trainFile.c_str()));
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(trainFileLabel);
+    mainLayout->addWidget(trainFileEdit);
+    mainLayout->addStretch(1);
+    setLayout(mainLayout);
   }
+
+  /*
+  string trainFile;
+  string trainingDataPath;
+  string segmentsStore;
+  bool saveSegments;
+  bool showSteps;
+  */
 
   GeneralTab::GeneralTab(const QFileInfo& fileInfo, QWidget* parent)
     : QWidget(parent)

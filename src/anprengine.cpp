@@ -20,6 +20,10 @@ namespace brANPR
 {
   ANPREngine::ANPREngine()
   {
+    _Settings = {
+      {
+        "C:\\dev\\brANPR\\src\\OCR.xml"
+      } };
   }
 
   void ANPREngine::run(const string& filename)
@@ -71,7 +75,7 @@ namespace brANPR
     cout << "Num plates detected: " << plates.size() << "\n";
 
     //For each plate detected, recognize it with OCR
-    OCR ocr("C:\\dev\\brANPR\\src\\OCR.xml");
+    OCR ocr(_Settings.OCR.trainFile);
     ocr.saveSegments = true;
     ocr.DEBUG = false;
     ocr.filename = brANPR::getFilename(filename);
