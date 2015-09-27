@@ -3,37 +3,39 @@
 namespace brANPR
 {
   const OCRTrainChars OCR::trainChars[] = {
-    {'0', 5},
-    {'1', 2},
-    {'2', 3},
-    {'3', 9},
-    {'4', 5},
-    {'5', 8},
-    {'6', 2},
-    {'7', 4},
-    {'8', 9},
-    {'9', 9},
-    {'B', 11},
-    {'C', 0},
-    {'D', 3},
-    {'F', 0},
-    {'G', 1},
-    {'H', 1},
-    {'J', 0},
-    {'K', 1},
-    {'L', 0},
-    {'M', 4},
-    {'N', 0},
-    {'P', 3},
-    {'R', 0},
-    {'S', 3},
-    {'T', 0},
-    {'U', 4},
-    {'V', 0},
-    {'W', 2},
-    {'X', 0},
-    {'Y', 4},
-    {'Z', 0},
+    { '0', 5 },
+    { '1', 2 },
+    { '2', 4 },
+    { '3', 10 },
+    { '4', 5 },
+    { '5', 8 },
+    { '6', 2 },
+    { '7', 5 },
+    { '8', 9 },
+    { '9', 9 },
+    { 'A', 1 },
+    { 'B', 11 },
+    { 'C', 0 },
+    { 'D', 3 },
+    { 'E', 3 },
+    { 'F', 0 },
+    { 'G', 1 },
+    { 'H', 1 },
+    { 'J', 0 },
+    { 'K', 1 },
+    { 'L', 0 },
+    { 'M', 4 },
+    { 'N', 0 },
+    { 'P', 3 },
+    { 'R', 0 },
+    { 'S', 3 },
+    { 'T', 0 },
+    { 'U', 4 },
+    { 'V', 0 },
+    { 'W', 2 },
+    { 'X', 0 },
+    { 'Y', 4 },
+    { 'Z', 0 },
   };
 
   const int OCR::numCharacters = sizeof(trainChars) / sizeof(trainChars[0]);
@@ -167,18 +169,18 @@ namespace brANPR
     //Find contours of possibles characters
     vector<vector<Point>> contours;
     findContours(img_contours,
-                 contours, // a vector of contours
-                 CV_RETR_EXTERNAL, // retrieve the external contours
-                 CV_CHAIN_APPROX_NONE); // all pixels of each contours
+      contours, // a vector of contours
+      CV_RETR_EXTERNAL, // retrieve the external contours
+      CV_CHAIN_APPROX_NONE); // all pixels of each contours
 
     // Draw blue contours on a white image
     cv::Mat result;
     img_threshold.copyTo(result);
     cvtColor(result, result, CV_GRAY2RGB);
     cv::drawContours(result, contours,
-                     -1, // draw all contours
-                     cv::Scalar(255, 0, 0), // in blue
-                     1); // with a thickness of 1
+      -1, // draw all contours
+      cv::Scalar(255, 0, 0), // in blue
+      1); // with a thickness of 1
 
     //Start to iterate to each contour founded
     vector<vector<Point>>::iterator itc = contours.begin();

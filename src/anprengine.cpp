@@ -32,6 +32,7 @@ namespace brANPR
 
   void ANPREngine::run(const string& filename)
   {
+    reset();
     _Original = mat2QImage(imread(filename));
     DetectRegions detectRegions;
     detectRegions.setFilename(filename);
@@ -167,5 +168,13 @@ namespace brANPR
   brANPR::ANPRSettings ANPREngine::getSettings() const
   {
     return _Settings;
+  }
+
+  void ANPREngine::reset()
+  {
+    _Original = QImage();
+    _Segmented = QImage();
+    _ProcessedPlates = QImage();
+    _PlateDetected = QImage();
   }
 }
