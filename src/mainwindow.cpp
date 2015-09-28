@@ -43,7 +43,7 @@ namespace brANPR
       qDebug() << QString(" [%1] ").arg(str);
       _images.push_back(str);
     }
-    if (_images.size() > 1)
+    if (_images.size() > 0)
     {
       ui->prevBtn->setEnabled(true);
       ui->nextBtn->setEnabled(true);
@@ -68,7 +68,7 @@ namespace brANPR
       qDebug() << "Found file: " << fin.canonicalFilePath();
       _images.push_back(fin.canonicalFilePath());
     }
-    if (_images.size() > 1)
+    if (_images.size() > 0)
     {
       ui->prevBtn->setEnabled(true);
       ui->nextBtn->setEnabled(true);
@@ -100,7 +100,7 @@ namespace brANPR
 
   void MainWindow::on_actionTrainPlates_triggered()
   {
-    brANPR::trainPlates(8, 9, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
+    brANPR::trainPlates(9, 12, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
   }
 
   void MainWindow::on_actionTrainOCR_triggered()

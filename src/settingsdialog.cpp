@@ -1,5 +1,4 @@
 #include <QtWidgets>
-#include <QString>
 
 #include "settingsdialog.h"
 #include "anprengine.h"
@@ -14,6 +13,8 @@ namespace brANPR
     tabWidget = new QTabWidget;
     _ocrTab = new OCRTab(settings.OCR);
     tabWidget->addTab(_ocrTab, tr("OCR"));
+    _detectRegionsTab = new DetectRegionsTab(settings.DetectRegions);
+    tabWidget->addTab(_detectRegionsTab, tr("Detect Regions"));
 
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
       | QDialogButtonBox::Cancel);
@@ -33,6 +34,7 @@ namespace brANPR
   {
     ANPRSettings settings;
     settings.OCR = _ocrTab->getSettings();
+    settings.DetectRegions = _detectRegionsTab->getSettings();
     return settings;
   }
 
@@ -70,6 +72,29 @@ namespace brANPR
     settings.trainFile = _trainFileEdit->text().toUtf8().constData();
     settings.trainingDataPath = _trainingDataPathEdit->text().toUtf8().constData();
     settings.segmentsStore = _segmentsStoreEdit->text().toUtf8().constData();
+    settings.saveSegments = _saveSegments->isChecked();
+    settings.showSteps = _showSteps->isChecked();
+    return settings;
+  }
+
+  DetectRegionsTab::DetectRegionsTab(const DetectRegionsSettings& settings, QWidget* parent /*= 0*/)
+  {
+    _saveSegments = new QCheckBox(tr("Save Segments"));
+    if (settings.saveSegments)
+      _saveSegments->setChecked(true);
+    _showSteps = new QCheckBox(tr("Show Steps"));
+    if (settings.showSteps)
+      _showSteps->setChecked(true);
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(_saveSegments);
+    mainLayout->addWidget(_showSteps);
+    mainLayout->addStretch(1);
+    setLayout(mainLayout);
+  }
+
+  DetectRegionsSettings DetectRegionsTab::getSettings() const
+  {
+    DetectRegionsSettings settings;
     settings.saveSegments = _saveSegments->isChecked();
     settings.showSteps = _showSteps->isChecked();
     return settings;

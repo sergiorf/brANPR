@@ -5,12 +5,14 @@
 #include <QImage>
 #include <opencv2/opencv.hpp>
 #include "OCR.h"
+#include "detectregions.h"
 
 namespace brANPR
 {
   struct ANPRSettings
   {
     OCRSettings OCR;
+    DetectRegionsSettings DetectRegions;
   };
 
   class ANPREngine

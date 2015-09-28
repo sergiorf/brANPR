@@ -12,6 +12,7 @@ namespace brANPR
 {
   struct ANPRSettings;
   struct OCRSettings;
+  struct DetectRegionsSettings;
 
   class OCRTab : public QWidget
   {
@@ -29,6 +30,19 @@ namespace brANPR
     QCheckBox* _showSteps;
   };
 
+  class DetectRegionsTab : public QWidget
+  {
+    Q_OBJECT
+
+    friend class SettingsDialog;
+  public:
+    explicit DetectRegionsTab(const DetectRegionsSettings& settings, QWidget* parent = 0);
+    DetectRegionsSettings getSettings() const;
+  private:
+    QCheckBox* _saveSegments;
+    QCheckBox* _showSteps;
+  };
+
   class SettingsDialog : public QDialog
   {
     Q_OBJECT
@@ -40,5 +54,6 @@ namespace brANPR
     QTabWidget* tabWidget;
     QDialogButtonBox* buttonBox;
     OCRTab* _ocrTab;
+    DetectRegionsTab* _detectRegionsTab;
   };
 };
