@@ -39,10 +39,10 @@ namespace brANPR
     if (dlg.exec())
       fileNames = dlg.selectedFiles();
     foreach(const QString &str, fileNames)
-    {
-      qDebug() << QString(" [%1] ").arg(str);
-      _images.push_back(str);
-    }
+      {
+        qDebug() << QString(" [%1] ").arg(str);
+        _images.push_back(str);
+      }
     if (_images.size() > 0)
     {
       ui->prevBtn->setEnabled(true);
@@ -55,8 +55,8 @@ namespace brANPR
   {
     reset();
     QString dirName = QFileDialog::getExistingDirectory(this, tr("Select Folder"),
-      "C:\\dev\\brANPR",
-      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                        "C:\\dev\\brANPR",
+                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     QDir dir(dirName);
     dir.setNameFilters(QStringList("*.jpg"));
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -100,7 +100,7 @@ namespace brANPR
 
   void MainWindow::on_actionTrainPlates_triggered()
   {
-    brANPR::trainPlates(9, 12, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
+    brANPR::trainPlates(11, 12, "C:\\dev\\brANPR\\train\\SVM\\plates\\", "C:\\dev\\brANPR\\train\\SVM\\noplates\\");
   }
 
   void MainWindow::on_actionTrainOCR_triggered()
