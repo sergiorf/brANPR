@@ -27,7 +27,7 @@ namespace brANPR
           string plate = trim(line.substr(0, pos));
           string fileName = trim(line.substr(pos + 1, line.size() - 1));
           str << "/" << fileName;
-          AnalyzerData data = { plate, "?", str.str() };
+          AnalyzerData data = {plate, "?", str.str()};
           _data.push_back(data);
         }
       }

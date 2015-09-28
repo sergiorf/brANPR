@@ -136,29 +136,28 @@ namespace brANPR
     if (DEBUG)
       imshow("Threshold plate", img_threshold);
 
-    //   adaptiveThreshold(input, img_threshold, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 11, 2);
+    //adaptiveThreshold(input, img_threshold, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 11, 2);
 
     //  ThinSubiteration1(img_threshold, img_threshold);
 
+    //threshold(input, img_threshold, 0, 255, CV_THRESH_BINARY + CV_THRESH_OTSU);
     /*
-    threshold(input, img_threshold, 0, 255, CV_THRESH_BINARY + CV_THRESH_OTSU);
     imshow("OTSU plate", img_threshold);
+    */
 
     int erosion_size = 1;
     Mat element = getStructuringElement(cv::MORPH_CROSS,
-    cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
-    cv::Point(erosion_size, erosion_size));
-
+      cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
+      cv::Point(erosion_size, erosion_size));
+    /*
     morphologyEx(img_threshold, img_threshold, MORPH_OPEN, element);
     */
 
-    /*
     // Apply erosion or dilation on the image
-    erode(img_threshold, img_threshold, element);
-    imshow("Threshold plate after erode", img_threshold);
+    //erode(img_threshold, img_threshold, element);
+    //imshow("Threshold plate after erode", img_threshold);
 
-    dilate(img_threshold, img_threshold, element);
-    */
+    //dilate(img_threshold, img_threshold, element);
 
     if (DEBUG)
       imshow("Threshold plate", img_threshold);
