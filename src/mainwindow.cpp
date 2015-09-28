@@ -2,14 +2,11 @@
 #include "ui_mainwindow.h"
 #include "anprengine.h"
 #include <QFileDialog>
-#include <QDirIterator>
 #include <QDebug>
-#include <opencv\ml.h>
-#include <opencv\cvaux.h>
-#include <opencv\highgui.h>
 #include "utils.h"
 #include "OCR.h"
 #include "settingsdialog.h"
+#include "Analyzer.h"
 
 namespace brANPR
 {
@@ -42,10 +39,10 @@ namespace brANPR
     if (dlg.exec())
       fileNames = dlg.selectedFiles();
     foreach(const QString &str, fileNames)
-    {
-      qDebug() << QString(" [%1] ").arg(str);
-      _images.push_back(str);
-    }
+      {
+        qDebug() << QString(" [%1] ").arg(str);
+        _images.push_back(str);
+      }
     if (_images.size() > 1)
     {
       ui->prevBtn->setEnabled(true);
@@ -58,8 +55,8 @@ namespace brANPR
   {
     reset();
     QString dirName = QFileDialog::getExistingDirectory(this, tr("Select Folder"),
-      "C:\\dev\\brANPR",
-      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                        "C:\\dev\\brANPR",
+                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     QDir dir(dirName);
     dir.setNameFilters(QStringList("*.jpg"));
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -76,6 +73,26 @@ namespace brANPR
       ui->prevBtn->setEnabled(true);
       ui->nextBtn->setEnabled(true);
       runEngine(_currptr);
+    }
+  }
+
+  void MainWindow::on_actionAnalyze_Folder_triggered()
+  {
+    QFileDialog dlg(this, tr("Select Summary"), "C:\\dev\\brANPR");
+    dlg.setNameFilter(tr("Summary (*.txt)"));
+    dlg.setViewMode(QFileDialog::Detail);
+    dlg.setFileMode(QFileDialog::ExistingFile);
+    QStringList fileNames;
+    if (dlg.exec())
+      fileNames = dlg.selectedFiles();
+    if (fileNames.size() > 0)
+    {
+      QFile file(fileNames[0]);
+      if (file.exists())
+      {
+        Analyzer analyzer(file);
+        AnalyzerResult res(analyzer.run());
+      }
     }
   }
 

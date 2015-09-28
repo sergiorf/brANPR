@@ -25,6 +25,7 @@ namespace brANPR
 
     private slots:
     void on_actionOpen_Folder_triggered();
+    void on_actionAnalyze_Folder_triggered();
     void on_actionOpen_File_triggered();
     void on_actionTrainPlates_triggered();
     void on_actionTrainOCR_triggered();

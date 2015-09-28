@@ -27,12 +27,13 @@ namespace brANPR
         "c:\\tmp\\",
         false,
         false,
-      } };
+      }};
   }
 
-  void ANPREngine::run(const string& filename)
+  vector<string> ANPREngine::run(const string& filename)
   {
     reset();
+    vector<string> result;
     _Original = mat2QImage(imread(filename));
     DetectRegions detectRegions;
     detectRegions.setFilename(filename);
@@ -97,7 +98,8 @@ namespace brANPR
         cout << "================================================\n";
         rectangle(input_image, plate.position, Scalar(0, 0, 200));
         putText(input_image, licensePlate, Point(plate.position.x, plate.position.y),
-          CV_FONT_HERSHEY_SIMPLEX, 1, CV_RGB(0, 0, 0), 2);
+                CV_FONT_HERSHEY_SIMPLEX, 1, CV_RGB(0, 0, 0), 2);
+        result.push_back(licensePlate);
       }
       proc_plates.push_back(composite);
       Mat tmp;
@@ -106,6 +108,7 @@ namespace brANPR
     }
     _PlateDetected = mat2QImage(input_image);
     // imshow("Plate Detected", input_image);
+    return result;
   }
 
   QImage ANPREngine::original() const
@@ -133,26 +136,26 @@ namespace brANPR
     switch (inMat.type())
     {
     case CV_8UC4:
-    {
-                  QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB32);
-                  image.bits();
-                  return image;
-    }
+      {
+        QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB32);
+        image.bits();
+        return image;
+      }
     case CV_8UC3:
-    {
-                  QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB888);
-                  image.bits();
-                  return image.rgbSwapped();
-    }
+      {
+        QImage image(inMat.data, inMat.cols, inMat.rows, inMat.step, QImage::Format_RGB888);
+        image.bits();
+        return image.rgbSwapped();
+      }
     case CV_8UC1:
-    {
-                  cv::Mat rgb;
-                  cv::cvtColor(inMat, rgb, CV_GRAY2BGR);
-                  cv::cvtColor(rgb, rgb, CV_BGR2BGRA);
-                  auto temp = QImage(static_cast<unsigned char*>(rgb.data), rgb.cols, rgb.rows, QImage::Format_ARGB32);
-                  auto image = temp.copy();
-                  return image;
-    }
+      {
+        cv::Mat rgb;
+        cv::cvtColor(inMat, rgb, CV_GRAY2BGR);
+        cv::cvtColor(rgb, rgb, CV_BGR2BGRA);
+        auto temp = QImage(static_cast<unsigned char*>(rgb.data), rgb.cols, rgb.rows, QImage::Format_ARGB32);
+        auto image = temp.copy();
+        return image;
+      }
     default:
       cerr << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << inMat.type();
       break;

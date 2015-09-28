@@ -1,18 +1,17 @@
 ## Synopsis
 
 Essentially started as a fork of the ANPR engine available in https://github.com/MasteringOpenCV/code <br />
-I built a Qt GUI around it and modified a bit the preprocessing module to cope with Brazilian plates, plus some other small modifications.
+I built a Qt GUI around it and modified a bit the preprocessing module to cope with Brazilian plates, plus some other small modifications. <br />
 It comes with some sample images of front-plate Brazilian trucks.
 
 ## Installation
 
-It uses CMAKE. You need to edit the CMakeLists.txt and change the paths to your own installation of OpenCV 2.4 and Qt5. <br />
-I have developed the program only with VS2013.
+It uses CMAKE. You need to edit the CMakeLists.txt and change the paths to your own installation of OpenCV 2.4 and Qt 5. <br />
+I have developed and tested the program only with VS2013.
 
 ## Planned Modifications
 
-The OCR module uses OpenCV's implementation of a multi-layer perceptron. <br />
-I would like to compare its performance against the Tesseract OCR engine.
+The OCR module uses OpenCV's implementation of a multi-layer perceptron. I would like to compare its performance against the Tesseract OCR engine.
 
 ## License
 
