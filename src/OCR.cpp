@@ -144,11 +144,12 @@ namespace brANPR
     /*
     imshow("OTSU plate", img_threshold);
     */
-
+    /*
     int erosion_size = 1;
     Mat element = getStructuringElement(cv::MORPH_CROSS,
-      cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
-      cv::Point(erosion_size, erosion_size));
+    cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
+    cv::Point(erosion_size, erosion_size));
+    */
     /*
     morphologyEx(img_threshold, img_threshold, MORPH_OPEN, element);
     */
