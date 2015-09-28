@@ -39,10 +39,10 @@ namespace brANPR
     if (dlg.exec())
       fileNames = dlg.selectedFiles();
     foreach(const QString &str, fileNames)
-      {
-        qDebug() << QString(" [%1] ").arg(str);
-        _images.push_back(str);
-      }
+    {
+      qDebug() << QString(" [%1] ").arg(str);
+      _images.push_back(str);
+    }
     if (_images.size() > 1)
     {
       ui->prevBtn->setEnabled(true);
@@ -55,8 +55,8 @@ namespace brANPR
   {
     reset();
     QString dirName = QFileDialog::getExistingDirectory(this, tr("Select Folder"),
-                                                        "C:\\dev\\brANPR",
-                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+      "C:\\dev\\brANPR",
+      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     QDir dir(dirName);
     dir.setNameFilters(QStringList("*.jpg"));
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -92,6 +92,8 @@ namespace brANPR
       {
         Analyzer analyzer(file);
         AnalyzerResult res(analyzer.run());
+        SummaryDialog sumdlg(res, this);
+        sumdlg.exec();
       }
     }
   }

@@ -9,7 +9,7 @@ endif()
 find_package(Qt5Widgets)
 
 set(UI_FILES mainwindow.ui)
-set(QT_WRAP mainwindow.h settingsdialog.h)
+set(QT_WRAP mainwindow.h settingsdialog.h analyzer.h)
 file(GLOB brANPR_SRC
     "*.h"
     "*.cpp"

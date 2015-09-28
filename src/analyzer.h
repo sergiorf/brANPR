@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QFile>
+#include <QDialog>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,14 @@ namespace brANPR
     size_t ncorrect0;
     size_t ncorrect1;
     size_t ncorrect2;
+  };
+
+  class SummaryDialog : public QDialog
+  {
+    Q_OBJECT
+
+  public:
+    explicit SummaryDialog(const AnalyzerResult& result, QWidget* parent = 0);
   };
 
   class Analyzer

@@ -1,8 +1,11 @@
 #include "analyzer.h"
 #include "anprengine.h"
 #include <QTextStream>
+#include <QVBoxLayout>
+#include <QPlainTextEdit>
 #include <string>
 #include "utils.h"
+#include <QtWidgets/qplaintextedit.h>
 
 using namespace std;
 
@@ -75,4 +78,24 @@ namespace brANPR
     result.data = _data;
     return result;
   };
+
+  SummaryDialog::SummaryDialog(const AnalyzerResult& result, QWidget* parent /*= 0*/)
+  {
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+    QPlainTextEdit* textEdit = new QPlainTextEdit;
+    for (const auto& line : result.data)
+    {
+      stringstream str;
+      str << line.truePlate << ";";
+      str << line.detectedPlate << ";";
+      str << line.fileName;
+      textEdit->appendPlainText(QString::fromUtf8(str.str().c_str()));
+    }
+    textEdit->appendPlainText(QString(" [%1] <=2 errors in [%2] ").arg(result.ncorrect2).arg(result.data.size()));
+    textEdit->appendPlainText(QString(" [%1] <=1 errors in [%2] ").arg(result.ncorrect1).arg(result.data.size()));
+    textEdit->appendPlainText(QString(" [%1] without errors in [%2] ").arg(result.ncorrect0).arg(result.data.size()));
+    mainLayout->addWidget(textEdit);
+    setLayout(mainLayout);
+    setWindowTitle(tr("Results Summary"));
+  }
 }
